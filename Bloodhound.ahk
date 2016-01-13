@@ -2,7 +2,7 @@
 ; #Warn
 #singleinstance force
 ;#WinActivateForce
-#include <CSVLib>
+#include <CSV_Lib>
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 DetectHiddenWindows off
@@ -21,8 +21,10 @@ WinActivate ahk_exe chrome.exe
 WinMove ahk_exe chrome.exe,,0,0,1024,768
 CSV_LOAD(filename,"sheet","`,")
 if CSV_TotalCols("sheet") <2
+{	
 	msgbox Error!
 	Exitapp 1
+}
 loop
 {
 	Row:=A_Index
@@ -52,14 +54,24 @@ loop
 			CSV_ModifyCell("sheet","SKIP",Row,5)
 			continue 2
 		}		
-		send {F6}javascript:surnameandnamelookup('%Surname%', '%Z%', '0', '%A_Index%'){ENTER}		
+		send {F6}
+		sleep 50
+		clipboard :="javascript"
+		clipwait
+		send ^v
+		sleep 50
+		clipboard:=":surnameandnamelookup('" . Surname . "', '" . Z . ".', '0', '" . A_Index-1 . "')"
+		clipwait
+		send ^v
+		sleep 50
+		send {ENTER}
 		sleep 5000
 		loop
 		{
 			clipboard:=
 			send ^a^c^+{HOME}
 			clipwait
-			if not CountSubstring(clipboard,surname)>1 and not instr(clipboard,"No records found")
+			if not CountSubstring(clipboard,surname)>0 and not instr(clipboard,"No records found")
 			{				
 					sleep 1000
 					continue
@@ -73,8 +85,11 @@ loop
 	}
 	FilterNames(full,row,name)
 	numtraced:=0
+	
 	if idList0=1
+	{
 		CSV_ModifyCell("sheet",idList1,Row,5)
+	}
 	else
 	{
 		loop %idList0%
@@ -85,18 +100,39 @@ loop
 			previous:=A_Index-1
 			if idnum = idList%previous%
 					continue
-			send {F6}javascript:idlookup(%idnum%){ENTER}
+			send {F6}
+			sleep 50
+			clipboard :="javascript"
+			clipwait
+			send ^v
+			sleep 50
+			clipboard:=":idlookup(" . idnum . ")"
+			clipwait
+			send ^v
+			sleep 50
+			send {ENTER}
+			sleep 5000
 			loop
 			{
-				if mod(%A_Index%,3) = 0
+				if mod(%A_Index%,10) = 0
 				{
-					send {F6}javascript:idlookup(%idnum%){ENTER}
+					send {F6}
+					sleep 50
+					clipboard :="javascript"
+					clipwait
+					send ^v
+					sleep 50
+					clipboard:=":idlookup(" . idnum . ")"
+					clipwait
+					send ^v
+					sleep 50
+					send {ENTER}
 				}
 				clipboard:=	
 				send ^a^c
 				clipwait
 				send ^+{HOME}
-				if not CountSubstring(clipboard,idnum)>1
+				if not CountSubstring(clipboard,idnum)>0
 				{
 					sleep 1000
 					continue
@@ -144,7 +180,17 @@ loop
 						}
 						else if A_Index!=A
 						{
-							send {F6}javascript:idlookup(%idnum%){ENTER}
+							send {F6}
+							sleep 50
+							clipboard :="javascript"
+							clipwait
+							send ^v
+							sleep 50
+							clipboard:=":idlookup(" . idnum . ")"
+							clipwait
+							send ^v
+							sleep 50
+							send {ENTER}
 						}
 					}
 			}	
@@ -159,13 +205,14 @@ CountSubstring(fullstring, substring){
 	return errorlevel
 }
 FilterNames(full,row,name){
+	global
 	idList0:=0
 	StringSplit details,full,`r,`n
 	if details0=1
 	{
 		StringSplit gridd,details1,%A_Tab%
 		CSV_ModifyCell("sheet",gridd5,Row,5)
-		continue
+		return
 	}
 	StringSplit sequence,name,%A_Space%
 	m:=1
@@ -176,7 +223,8 @@ FilterNames(full,row,name){
 		match:=1
 		loop %sequence0%
 		{
-			if CountSubstring(sequence%A_Index%,bureauName%A_Index%)!=1
+			tempseq:=sequence%A_Index%
+			if bureauName%A_Index% not contains %tempseq%
 			{
 				match:=0
 				break
