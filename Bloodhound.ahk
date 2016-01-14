@@ -46,7 +46,7 @@ loop
 	name:=CSV_ReadCell("sheet",Row,2)
 	if LRegion is space
 		Lregion:=Regions
-	StringReplace,Z,name,%A_SPACE%,`.`,
+	StringReplace,Z,name,%A_SPACE%,`.`,,1
 	loop
 	{
 		if A_Index>=20
@@ -106,11 +106,11 @@ loop
 			clipwait
 			send ^v
 			sleep 50
-			clipboard:=":idlookup(" . idnum . ")"
+			clipboard:=":idlookup('" . idnum . "')"
 			clipwait
 			send ^v
 			sleep 50
-			send {ENTER}
+			send {ENTER}{ESC}
 			sleep 5000
 			loop
 			{
@@ -122,11 +122,11 @@ loop
 					clipwait
 					send ^v
 					sleep 50
-					clipboard:=":idlookup(" . idnum . ")"
+					clipboard:=":idlookup('" . idnum . "')"
 					clipwait
 					send ^v
 					sleep 50
-					send {ENTER}
+					send {ENTER}{ESC}
 				}
 				clipboard:=	
 				send ^a^c
@@ -149,7 +149,7 @@ loop
 			else
 			{	
 				A:=CountSubstring(SubStr(clipboard,InStr(clipboard,"PROPERTIES"),InStr(clipboard,"TELEPHONE NUMBERS")-InStr(clipboard,"PROPERTIES")-2),"`r`n")-3
-				if  not InStr(SubStr(clipboard,InStr(clipboard,"PROPERTIES"),InStr(clipboard,"TELEPHONE NUMBERS")-InStr(clipboard,"PROPERTIES")-2),"No records found") and InStr(SubStr(clipboard,InStr(clipboard,"PROPERTIES"),InStr(clipboard,"TELEPHONE NUMBERS")-InStr(clipboard,"PROPERTIES")-2),Registrar)
+				if  not InStr(SubStr(clipboard,InStr(clipboard,"PROPERTIES"),InStr(clipboard,"TELEPHONE NUMBERS")-InStr(clipboard,"PROPERTIES")-2),"No records found") and InStr(SubStr(clipboard,InStr(clipboard,"PROPERTIES"),InStr(clipboard,"TELEPHONE NUMBERS")-InStr(clipboard,"PROPERTIES")-2),Registrar) and Registrar is not space
 					loop %A%
 					{
 						send {PGDN}
@@ -186,11 +186,11 @@ loop
 							clipwait
 							send ^v
 							sleep 50
-							clipboard:=":idlookup(" . idnum . ")"
+							clipboard:=":idlookup('" . idnum . "')"
 							clipwait
 							send ^v
 							sleep 50
-							send {ENTER}
+							send {ENTER}{ESC}
 						}
 					}
 			}	
